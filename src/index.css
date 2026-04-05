@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2F5BFF;
+  --color-primary-hover: #2448D8;
+  --color-primary-soft: #EAF0FF;
+  --color-secondary: #14B8A6;
+  --color-secondary-soft: #E8FCF8;
+  --color-bg: #F7F9FC;
+  --color-surface: #FFFFFF;
+  --color-surface-soft: #FDFEFF;
+  --color-border: #E6EAF2;
+  --color-border-strong: #D7DEEA;
+  --color-text: #182033;
+  --color-text-muted: #7B8798;
+  --color-text-soft: #A0AABC;
+  --color-success: #22C55E;
+  --color-success-soft: #ECFDF3;
+  --color-warning: #F59E0B;
+  --color-warning-soft: #FFF7E8;
+  --color-danger: #EF4444;
+  --color-danger-soft: #FEF0F0;
+  --color-info: #3B82F6;
+  --color-info-soft: #EEF4FF;
+}
+
+@layer base {
+  html {
+    font-size: 14px;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.card-shadow {
+  box-shadow: 0 4px 6px -1px rgba(226, 232, 240, 0.4), 0 2px 4px -2px rgba(226, 232, 240, 0.4);
+}
+
+.btn-primary {
+  background-color: #3B82F6;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-color: #2563EB;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  scale: 0.98;
+}
+
+@keyframes strike {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+.strike-animation {
+  position: relative;
+}
+
+.strike-animation::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  animation: strike 0.3s ease-out forwards;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.2s ease-in-out 0s 2;
+}

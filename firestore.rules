@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.email == "vittoheavymetal@gmail.com" ||
+         request.auth.token.email == "admin@ti.com" ||
+         (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+          (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMINISTRADOR')));
+    }
+
+    function isManager() {
+      return isAuthenticated() && 
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager' ||
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'GERENTE'));
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function hasPermission(userId, modulo, companyId) {
+      let permDoc = /databases/$(database)/documents/user_company_permissions/$(userId + '_' + companyId);
+      return isAdmin() || (exists(permDoc) && get(permDoc).data.permissoes[modulo] == true);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Companies
+    match /companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager() || hasPermission(request.auth.uid, 'configuracoes', companyId);
+    }
+
+    // Analysts (Users)
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin() || isOwner(userId);
+      allow delete: if isAdmin();
+    }
+
+    // Checklists
+    match /checklists/{checklistId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager() || hasPermission(request.auth.uid, 'checklists', resource.data.companyId);
+    }
+
+    // Checklist Executions
+    match /checklist_executions/{executionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Inventory Assets
+    match /inventory_assets/{assetId} {
+      allow read: if isAuthenticated() && hasPermission(request.auth.uid, 'inventario', resource.data.companyId);
+      allow create, update: if isAuthenticated() && hasPermission(request.auth.uid, 'inventario', request.resource.data.companyId);
+      allow delete: if isAdmin() || isManager() || hasPermission(request.auth.uid, 'inventario', resource.data.companyId);
+    }
+
+    // User Company Permissions
+    match /user_company_permissions/{permissionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isManager();
+    }
+
+    // Import Logs
+    match /inventory_import_logs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isAdmin() || isManager();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // System Backups
+    match /system_backups/{backupId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Data Integrity Logs
+    match /data_integrity_logs/{logId} {
+      allow read: if isAdmin() || isManager();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || isManager();
+      allow delete: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    // Messages (Chat)
+    match /messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Automations
+    match /automations/{automationId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // System Settings
+    match /system_settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+  }
+}

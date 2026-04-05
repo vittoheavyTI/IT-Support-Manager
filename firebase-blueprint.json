@@ -1,0 +1,175 @@
+{
+  "entities": {
+    "User": {
+      "title": "Analista",
+      "description": "Perfil do analista de TI",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "analystId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "manager", "analyst"] },
+        "position": { "type": "string" },
+        "phone": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "status": { "type": "string", "enum": ["online", "offline", "blocked"] },
+        "unidades": { "type": "array", "items": { "type": "string" } },
+        "version": { "type": "integer" },
+        "ultimoAcessoEm": { "type": "string", "format": "date-time" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "displayName", "role"]
+    },
+    "Company": {
+      "title": "Empresa",
+      "description": "Empresa cliente atendida",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cnpj": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "version": { "type": "integer" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "cnpj", "status"]
+    },
+    "Asset": {
+      "title": "Ativo",
+      "description": "Item de inventário de TI",
+      "type": "object",
+      "properties": {
+        "uniqueKey": { "type": "string" },
+        "nome": { "type": "string" },
+        "divisao": { "type": "string", "enum": ["TI", "Telecom"] },
+        "status": { "type": "string", "enum": ["ativo", "inativo", "manutencao"] },
+        "tipo": { "type": "string", "enum": ["proprio", "alugado", "na"] },
+        "companyId": { "type": "string" },
+        "version": { "type": "integer" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["nome", "divisao", "companyId", "status", "uniqueKey"]
+    },
+    "AuditLog": {
+      "title": "Log de Auditoria",
+      "description": "Rastreabilidade de operações",
+      "type": "object",
+      "properties": {
+        "modulo": { "type": "string" },
+        "acao": { "type": "string" },
+        "entidade": { "type": "string" },
+        "entidadeId": { "type": "string" },
+        "resumo": { "type": "string" },
+        "usuario": { "type": "string" },
+        "antes": { "type": "object" },
+        "depois": { "type": "object" },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["modulo", "acao", "resumo", "usuario", "criadoEm"]
+    },
+    "DataIntegrityLog": {
+      "title": "Log de Integridade",
+      "description": "Falhas de validação de dados",
+      "type": "object",
+      "properties": {
+        "modulo": { "type": "string" },
+        "tipoProblema": { "type": "string" },
+        "descricao": { "type": "string" },
+        "severidade": { "type": "string", "enum": ["baixa", "media", "alta"] },
+        "resolvido": { "type": "boolean" },
+        "criadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["modulo", "tipoProblema", "severidade", "criadoEm"]
+    },
+    "SystemBackup": {
+      "title": "Backup do Sistema",
+      "description": "Registro de backups",
+      "type": "object",
+      "properties": {
+        "tipo": { "type": "string", "enum": ["manual", "automatico"] },
+        "destino": { "type": "string", "enum": ["local", "onedrive"] },
+        "status": { "type": "string", "enum": ["sucesso", "falha"] },
+        "totalRegistros": { "type": "integer" },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "usuario": { "type": "string" }
+      },
+      "required": ["tipo", "destino", "status", "criadoEm"]
+    },
+    "SystemSettings": {
+      "title": "Configurações do Sistema",
+      "description": "Configurações globais",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "value": { "type": "object" },
+        "version": { "type": "integer" },
+        "atualizadoEm": { "type": "string", "format": "date-time" }
+      },
+      "required": ["key", "value"]
+    },
+    "UserCompanyPermission": {
+      "title": "Permissão Multi-Empresa",
+      "description": "Permissões específicas de um usuário em uma empresa",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "companyId": { "type": "string" },
+        "role": { "type": "string", "enum": ["analyst", "manager", "admin"] },
+        "permissoes": {
+          "type": "object",
+          "properties": {
+            "inventario": { "type": "boolean" },
+            "checklists": { "type": "boolean" },
+            "relatorios": { "type": "boolean" },
+            "analistas": { "type": "boolean" },
+            "notificacoes": { "type": "boolean" },
+            "configuracoes": { "type": "boolean" },
+            "backups": { "type": "boolean" },
+            "auditoria": { "type": "boolean" }
+          }
+        },
+        "criadoEm": { "type": "string", "format": "date-time" },
+        "atualizadoEm": { "type": "string", "format": "date-time" },
+        "version": { "type": "integer" }
+      },
+      "required": ["userId", "companyId", "role", "permissoes"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Perfis de usuários"
+    },
+    "/companies/{companyId}": {
+      "schema": "Company",
+      "description": "Empresas clientes"
+    },
+    "/inventory_assets/{assetId}": {
+      "schema": "Asset",
+      "description": "Inventário de ativos"
+    },
+    "/audit_logs/{logId}": {
+      "schema": "AuditLog",
+      "description": "Logs de auditoria"
+    },
+    "/data_integrity_logs/{logId}": {
+      "schema": "DataIntegrityLog",
+      "description": "Logs de integridade de dados"
+    },
+    "/system_backups/{backupId}": {
+      "schema": "SystemBackup",
+      "description": "Backups do sistema"
+    },
+    "/system_settings/{settingId}": {
+      "schema": "SystemSettings",
+      "description": "Configurações globais"
+    },
+    "/user_company_permissions/{permissionId}": {
+      "schema": "UserCompanyPermission",
+      "description": "Permissões multi-empresa"
+    }
+  }
+}
