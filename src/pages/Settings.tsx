@@ -1080,6 +1080,42 @@ function PermissionSettings() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
+      {/* PAINEL DE DIAGNÓSTICO (Ocultável) */}
+      <div className="bg-slate-900 rounded-[32px] p-6 text-white shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 p-8 opacity-10"><Zap className="w-24 h-24" /></div>
+        <div className="relative z-10">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-500 rounded-xl"><Shield className="w-5 h-5 text-white" /></div>
+            <h3 className="text-sm font-black uppercase tracking-widest text-blue-400">Console de Diagnóstico de Acesso</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Logado como</p>
+              <p className="text-xs font-bold truncate">{auth.currentUser?.email || 'Nenhum e-mail'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">ID do Banco</p>
+              <p className="text-[10px] font-mono text-blue-300 truncate">ai-studio-67e4ee0a...</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Sua UID</p>
+              <p className="text-[10px] font-mono text-slate-400 truncate">{auth.currentUser?.uid}</p>
+            </div>
+            <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl">
+              <div className={`w-3 h-3 rounded-full ${analysts.find(a => a.id === auth.currentUser?.uid)?.role === 'admin' || auth.currentUser?.email === 'admin@ti.com' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+              <p className="text-[10px] font-black uppercase tracking-widest">
+                Status Admin: {analysts.find(a => a.id === auth.currentUser?.uid)?.role === 'admin' || auth.currentUser?.email === 'admin@ti.com' ? 'ATIVO' : 'BLOQUEADO'}
+              </p>
+            </div>
+          </div>
+          {auth.currentUser?.email !== 'admin@ti.com' && (
+            <p className="mt-4 text-[9px] text-amber-300 font-bold uppercase italic">
+              * Aviso: Seu e-mail não corresponde ao Administrador Master configurado nas regras.
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* BLOCO 1: FILTROS E AÇÕES */}
       <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[200px] relative">

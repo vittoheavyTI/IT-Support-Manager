@@ -8,11 +8,12 @@ service cloud.firestore {
     
     function isAdmin() {
       return isAuthenticated() && 
-        (request.auth.token.email == "vittoheavymetal@gmail.com" ||
-         request.auth.token.email == "admin@ti.com" ||
+        (request.auth.token.email == "admin@ti.com" ||
+         request.auth.token.email == "vittoheavymetal@gmail.com" ||
          (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
           (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMINISTRADOR')));
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMINISTRADOR' ||
+           get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'GERENTE')));
     }
 
     function isManager() {
