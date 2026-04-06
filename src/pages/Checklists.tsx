@@ -401,7 +401,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
   const priorities = ['Todas', 'Baixa', 'Média', 'Alta'];
   const types = ['Todos', 'imediato', 'semanal', 'mensal', 'permanente'];
   
-  const currentCompany = companies.find(c => c.id === selectedCompanyId);
+  const currentCompany = Array.isArray(companies) ? companies.find(c => c.id === selectedCompanyId) : null;
 
   const calculateNextDate = (type: ChecklistItem['type']) => {
     const now = new Date();
@@ -609,8 +609,9 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
   }
 
   const filteredItems = useMemo(() => {
-    return items
-      .filter(item => item.companyId === selectedCompanyId)
+    const safeItems = Array.isArray(items) ? items : [];
+    return safeItems
+      .filter(item => item && item.companyId === selectedCompanyId)
       .filter(item => {
         const matchesSearch = (item.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
                             (item.description || '').toLowerCase().includes(searchTerm.toLowerCase());

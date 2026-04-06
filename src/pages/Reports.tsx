@@ -171,22 +171,31 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
         break;
     }
 
-    const filteredChecklists = checklists.filter(c => {
-      const date = parseISO(c.createdAt);
-      const inRange = isWithinInterval(date, { start, end });
-      const matchesCompany = companyFilter === 'all' || c.companyId === companyFilter;
-      const matchesAnalyst = analystFilter === 'all' || c.analystId === analystFilter;
-      const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
-      return inRange && matchesCompany && matchesAnalyst && matchesStatus;
+    const safeChecklists = Array.isArray(checklists) ? checklists : [];
+    const safeAssets = Array.isArray(assets) ? assets : [];
+
+    const filteredChecklists = safeChecklists.filter(c => {
+      if (!c || !c.createdAt) return false;
+      try {
+        const date = parseISO(c.createdAt);
+        const inRange = isWithinInterval(date, { start, end });
+        const matchesCompany = companyFilter === 'all' || c.companyId === companyFilter;
+        const matchesAnalyst = analystFilter === 'all' || c.analystId === analystFilter;
+        const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
+        return inRange && matchesCompany && matchesAnalyst && matchesStatus;
+      } catch (e) {
+        return false;
+      }
     });
 
-    const filteredAssets = assets.filter(a => {
+    const filteredAssets = safeAssets.filter(a => {
+      if (!a) return false;
       const matchesCompany = companyFilter === 'all' || a.companyId === companyFilter;
       return matchesCompany;
     });
 
     return { checklists: filteredChecklists, assets: filteredAssets };
-  }, [period, customRange, companyFilter, checklists, assets]);
+  }, [period, customRange, companyFilter, checklists, assets, analystFilter, statusFilter]);
 
   // Calculations
   const stats = useMemo(() => {
@@ -216,10 +225,11 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
       }, 0) / (completed || 1);
 
     const analystStats = filteredChecklists.reduce((acc: any, c) => {
+      if (!c.analystId) return acc;
       if (!acc[c.analystId]) {
         acc[c.analystId] = { 
           id: c.analystId,
-          name: c.analystName, 
+          name: c.analystName || 'N/A', 
           total: 0, 
           completed: 0, 
           pending: 0,
@@ -230,9 +240,11 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
       if (c.status === 'completed') {
         acc[c.analystId].completed += 1;
         if (c.completedAt) {
-          const start = parseISO(c.createdAt).getTime();
-          const end = parseISO(c.completedAt).getTime();
-          acc[c.analystId].times.push(end - start);
+          try {
+            const start = parseISO(c.createdAt).getTime();
+            const end = parseISO(c.completedAt).getTime();
+            acc[c.analystId].times.push(end - start);
+          } catch (e) {}
         }
       } else {
         acc[c.analystId].pending += 1;
