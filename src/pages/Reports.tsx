@@ -97,32 +97,11 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
     return division;
   };
 
-  if (loadingAssets || loadingChecklists || loadingPerms) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mb-6"></div>
-        <p className="text-text-soft font-bold uppercase tracking-widest text-xs">Carregando relatórios...</p>
-      </div>
-    );
-  }
-
-  if (!isAdmin && !permissions?.relatorios) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 bg-surface rounded-[4rem] border border-dashed border-border p-8">
-        <div className="p-8 bg-danger-soft rounded-full mb-8">
-          <AlertCircle className="w-16 h-16 text-danger" />
-        </div>
-        <h2 className="text-2xl font-black text-text uppercase tracking-tight mb-4">Acesso Negado</h2>
-        <p className="text-text-soft font-bold uppercase tracking-widest text-xs text-center max-w-md">
-          Você não tem permissão para acessar o módulo de relatórios nesta empresa.
-          Entre em contato com o administrador para solicitar acesso.
-        </p>
-      </div>
-    );
-  }
-
   // Filter logic
   const filteredData = useMemo(() => {
+    const safeChecklists = Array.isArray(checklists) ? checklists : [];
+    const safeAssets = Array.isArray(assets) ? assets : [];
+    
     let start = new Date();
     let end = new Date();
 
@@ -170,9 +149,6 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
         start = new Date(0);
         break;
     }
-
-    const safeChecklists = Array.isArray(checklists) ? checklists : [];
-    const safeAssets = Array.isArray(assets) ? assets : [];
 
     const filteredChecklists = safeChecklists.filter(c => {
       if (!c || !c.createdAt) return false;
@@ -318,7 +294,6 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
     const rentedVsOwnedData = Object.entries(stats.rentedVsOwned).map(([name, value]) => ({ name, value }));
     const companyAssetData = Object.entries(stats.assetsByCompany).map(([name, value]) => ({ name, value }));
     
-    // SLA Trend (last 7 days of filtered period or just last 7 days)
     const trendData = Array.from({ length: 7 }).map((_, i) => {
       const date = subDays(new Date(), 6 - i);
       const dateStr = format(date, 'dd/MM');
@@ -340,6 +315,30 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
       companyAssetData
     };
   }, [stats]);
+
+  if (loadingAssets || loadingChecklists || loadingPerms) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mb-6"></div>
+        <p className="text-text-soft font-bold uppercase tracking-widest text-xs">Carregando relatórios...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin && !permissions?.relatorios) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 bg-surface rounded-[4rem] border border-dashed border-border p-8">
+        <div className="p-8 bg-danger-soft rounded-full mb-8">
+          <AlertCircle className="w-16 h-16 text-danger" />
+        </div>
+        <h2 className="text-2xl font-black text-text uppercase tracking-tight mb-4">Acesso Negado</h2>
+        <p className="text-text-soft font-bold uppercase tracking-widest text-xs text-center max-w-md">
+          Você não tem permissão para acessar o módulo de relatórios nesta empresa.
+          Entre em contato com o administrador para solicitar acesso.
+        </p>
+      </div>
+    );
+  }
 
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filteredData.checklists.map(c => ({
@@ -629,11 +628,11 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
             <select 
               value={companyFilter}
               onChange={(e) => setCompanyFilter(e.target.value)}
-              className="w-full h-12 px-4 bg-bg border-none rounded-xl text-xs font-bold text-text focus:ring-2 focus:ring-primary transition-all"
+              className="w-full pl-14 pr-10 py-5 bg-bg border border-border rounded-2xl shadow-inner focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-black text-[10px] text-text uppercase tracking-widest appearance-none cursor-pointer"
             >
-              <option value="all">Todas as Empresas</option>
-              {companies.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+              <option value="all">TODAS EMPRESAS</option>
+              {Array.isArray(companies) && companies.map(c => (
+                <option key={c.id} value={c.id}>{c.name?.toUpperCase()}</option>
               ))}
             </select>
           </div>
@@ -645,11 +644,11 @@ export default function Reports({ selectedCompanyId }: { selectedCompanyId: stri
             <select 
               value={analystFilter}
               onChange={(e) => setAnalystFilter(e.target.value)}
-              className="w-full h-12 px-4 bg-bg border-none rounded-xl text-xs font-bold text-text focus:ring-2 focus:ring-primary transition-all"
+              className="w-full pl-14 pr-10 py-5 bg-bg border border-border rounded-2xl shadow-inner focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-black text-[10px] text-text uppercase tracking-widest appearance-none cursor-pointer"
             >
-              <option value="all">Todos os Analistas</option>
-              {analysts.map(a => (
-                <option key={a.id} value={a.id}>{a.name}</option>
+              <option value="all">TODOS ANALISTAS</option>
+              {Array.isArray(analysts) && analysts.map(a => (
+                <option key={a.id} value={a.id}>{a.displayName?.toUpperCase()}</option>
               ))}
             </select>
           </div>

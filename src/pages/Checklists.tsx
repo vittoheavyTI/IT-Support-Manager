@@ -363,7 +363,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
 
   // Expand items with subtasks by default
   useEffect(() => {
-    if (items.length > 0) {
+    if (Array.isArray(items) && items.length > 0) {
       const idsWithSubtasks = items
         .filter(i => i.companyId === selectedCompanyId && i.subtasks && i.subtasks.length > 0)
         .map(i => i.id);
@@ -392,7 +392,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
 
   // LocalStorage Backup
   useEffect(() => {
-    if (items.length > 0) {
+    if (Array.isArray(items) && items.length > 0) {
       localStorage.setItem(`checklist_backup_${selectedCompanyId}`, JSON.stringify(items));
     }
   }, [items, selectedCompanyId]);
@@ -584,30 +584,6 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
     }
   };
 
-  if (loadingChecklists || loadingPerms) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mb-6"></div>
-        <p className="text-text-soft font-bold uppercase tracking-widest text-xs">Carregando checklists...</p>
-      </div>
-    );
-  }
-
-  if (!isAdmin && !permissions?.checklists) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24 bg-surface rounded-[4rem] border border-dashed border-border p-8">
-        <div className="p-8 bg-danger-soft rounded-full mb-8">
-          <AlertCircle className="w-16 h-16 text-danger" />
-        </div>
-        <h2 className="text-2xl font-black text-text uppercase tracking-tight mb-4">Acesso Negado</h2>
-        <p className="text-text-soft font-bold uppercase tracking-widest text-xs text-center max-w-md">
-          Você não tem permissão para acessar o módulo de checklists nesta empresa.
-          Entre em contato com o administrador para solicitar acesso.
-        </p>
-      </div>
-    );
-  }
-
   const filteredItems = useMemo(() => {
     const safeItems = Array.isArray(items) ? items : [];
     return safeItems
@@ -634,6 +610,30 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
       percent: total > 0 ? Math.round((completed / total) * 100) : 0
     };
   }, [filteredItems]);
+
+  if (loadingChecklists || loadingPerms) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-primary mb-6"></div>
+        <p className="text-text-soft font-bold uppercase tracking-widest text-xs">Carregando checklists...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin && !permissions?.checklists) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 bg-surface rounded-[4rem] border border-dashed border-border p-8">
+        <div className="p-8 bg-danger-soft rounded-full mb-8">
+          <AlertCircle className="w-16 h-16 text-danger" />
+        </div>
+        <h2 className="text-2xl font-black text-text uppercase tracking-tight mb-4">Acesso Negado</h2>
+        <p className="text-text-soft font-bold uppercase tracking-widest text-xs text-center max-w-md">
+          Você não tem permissão para acessar o módulo de checklists nesta empresa.
+          Entre em contato com o administrador para solicitar acesso.
+        </p>
+      </div>
+    );
+  }
 
   const toggleExpand = (id: string) => {
     setExpandedItems(prev => {
@@ -748,7 +748,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
             onChange={(e) => setFilterCategory(e.target.value)}
             className="w-full pl-14 pr-10 py-5 bg-bg border border-border rounded-2xl shadow-inner focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all font-black text-[10px] text-text uppercase tracking-widest appearance-none cursor-pointer"
           >
-            {categories.map(cat => <option key={cat} value={cat}>{cat === 'Todas' ? 'TODAS CATEGORIAS' : cat.toUpperCase()}</option>)}
+            {Array.isArray(categories) && categories.map(cat => <option key={cat} value={cat}>{cat === 'Todas' ? 'TODAS CATEGORIAS' : cat.toUpperCase()}</option>)}
           </select>
           <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted/40 pointer-events-none" />
         </div>
@@ -783,7 +783,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
         onDragEnd={handleDragEnd}
       >
         <SortableContext 
-          items={filteredItems.map(i => i.id)}
+          items={(Array.isArray(filteredItems) ? filteredItems : []).map(i => i.id)}
           strategy={verticalListSortingStrategy}
         >
           <div className="space-y-3">
@@ -1014,7 +1014,7 @@ export default function Checklists({ selectedCompanyId }: ChecklistsProps) {
                     </div>
 
                     <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                      {form.subtasks.map((sub, index) => (
+                      {Array.isArray(form.subtasks) && form.subtasks.map((sub, index) => (
                         <div key={sub.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 group min-h-[48px]">
                           <div className="flex items-center gap-3 flex-1">
                             <button 

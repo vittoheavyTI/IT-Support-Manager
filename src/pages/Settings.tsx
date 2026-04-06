@@ -46,7 +46,23 @@ import {
   Package
 } from 'lucide-react';
 import { auth, db } from '../firebase';
-import { doc, onSnapshot, updateDoc, collection, getDocs, query, where, orderBy, limit, addDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { 
+  collection, 
+  query, 
+  where, 
+  onSnapshot, 
+  doc, 
+  getDoc,
+  getDocs, 
+  addDoc,
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  writeBatch,
+  serverTimestamp,
+  orderBy,
+  limit
+} from 'firebase/firestore';
 import { UserProfile, Asset, ChecklistItem, Company, ImportLog, SystemBackup, AuditLog, DataIntegrityLog, UserCompanyPermission } from '../types';
 import { logAudit } from '../hooks/useFirestore';
 import { fetchAddressByCEP } from '../lib/cep';
