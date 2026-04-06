@@ -22,9 +22,10 @@ export default function SelectCompany({ profile, onSelect }: SelectCompanyProps)
     onSelect(companyId);
   };
 
+  const safeCompanies = Array.isArray(companies) ? companies : [];
   const userCompanies = profile?.role === 'admin' 
-    ? companies 
-    : companies.filter(c => 
+    ? safeCompanies 
+    : safeCompanies.filter(c => 
         profile?.assignedCompanies?.includes(c.id) || 
         profile?.empresasComAcesso?.includes(c.id)
       );

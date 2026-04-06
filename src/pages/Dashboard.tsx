@@ -83,7 +83,8 @@ export default function Dashboard({ selectedCompanyId }: { selectedCompanyId?: s
   }, []);
 
   const inventoryStats = useMemo(() => {
-    const filtered = assets.filter(a => !selectedCompanyId || a.companyId === selectedCompanyId);
+    const safeAssets = Array.isArray(assets) ? assets : [];
+    const filtered = safeAssets.filter(a => !selectedCompanyId || a.companyId === selectedCompanyId);
     
     const ti = filtered.filter(a => {
       const div = String(a.divisao || a.division || '').toLowerCase();
@@ -105,7 +106,8 @@ export default function Dashboard({ selectedCompanyId }: { selectedCompanyId?: s
   }, [assets, selectedCompanyId]);
 
   const stats = useMemo(() => {
-    const filtered = checklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
+    const safeChecklists = Array.isArray(checklists) ? checklists : [];
+    const filtered = safeChecklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
     const total = filtered.length;
     const completed = filtered.filter(c => c.completed).length;
     const pending = total - completed;
@@ -169,7 +171,8 @@ export default function Dashboard({ selectedCompanyId }: { selectedCompanyId?: s
   }, [checklists, selectedCompanyId]);
 
   const slaDetails = useMemo(() => {
-    const filtered = checklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
+    const safeChecklists = Array.isArray(checklists) ? checklists : [];
+    const filtered = safeChecklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
     const total = filtered.length;
     const onTime = filtered.filter(c => 
       c.completed && 
@@ -201,7 +204,8 @@ export default function Dashboard({ selectedCompanyId }: { selectedCompanyId?: s
   }, [checklists, selectedCompanyId]);
 
   const recentActivities = useMemo(() => {
-    const filtered = checklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
+    const safeChecklists = Array.isArray(checklists) ? checklists : [];
+    const filtered = safeChecklists.filter(c => !selectedCompanyId || c.companyId === selectedCompanyId);
     
     const activities: any[] = [];
 
